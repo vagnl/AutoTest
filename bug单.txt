@@ -1,0 +1,142 @@
+
+#创建接口：
+1.获取所有列表接口---匹配名字、id、子网id、vpcid都不成功
+
+
+
+	* Mirco 微型 QPS 1.8w 次/秒 1C2G*2
+	* Standard 标准型 QPS 3.6w 次/秒 2C4G*2
+	* Middle 中型 QPS 10w 次/秒 4C8G*2
+	* Large 大型 QPS 20w 次/秒 4C8G*4
+	* XLarge 超大型 QPS 40w 次/秒 4C8G*8
+	
+
+spec.micro=3:2
+spec.standard=18:2
+spec.middle=38:2
+spec.large=38:4
+spec.xlarge=38:8
+	
+	
+	
+	
+{
+    "zoneId": "5nPwncBkiHPcszud",
+    "fqdn": "dns-test-zone.cn-east1.local.",
+    "category": "pass-regional",
+    "status": "INSYNC",
+    "comment": "dns-test-zone-create"
+}	
+	
+	
+{
+    "setId": "7WgEnreub1MFSyfc",
+    "fqdn": "api.dns-test-zone.cn-east1.local.",
+    "type": "A",
+    "ttl": 10,
+    "policy": "simple",
+    "status": "INSYNC",
+    "comment": "dns test rrset"
+}
+
+{
+    "recordId": "gGdCjH9BzM2VPw7b",
+    "value": "15.14.13.12",
+    "comment": "api node ip",
+    "ttl": 600,
+    "status": "INSYNC"
+}
+
+
+#外网域名
+dig @10.1.230.222 www.nowcoder.com
+dig @10.1.230.222 www.baidu.com
+
+
+#paas服务域名
+dig @10.1.230.222 api.dns-test-zone.cn-east1.local
+expect：15.14.13.12 15.15.15.15
+
+cname1.dns-test-zone.cn-east1.local
+expect：baidu.com
+
+txt1.dns-test-zone.cn-east1.local
+expect：baidu.com
+
+
+
+#A记录--VPC内域名
+dig @10.1.230.222 dnstest.luolan-test.com
+expect：12.1.1.4
+
+dig @10.1.230.222 a-record-test.luolan-test.com
+expect：1.2.3.4 11.23.4.4
+
+
+#CNAME记录--VPC内域名
+dig @10.1.230.222 cname-record.luolan-test.com. cname
+expect：baidu.com yun.163.com
+
+#NS记录--VPC内域名
+dig @10.1.230.222 luolan-test.com. ns
+expect：ns1.dns.cn-east1.local ns2.dns.cn-east1.local
+
+#SOA记录--VPC内域名
+dig @10.1.230.222 luolan-test.com. soa
+expect：ns1.dns.cn-east1.local hostmaster.luolan-test.com. 1 7200 1800 86400 60
+
+#PTR记录--VPC内域名
+dig @10.1.230.222 ptr.luolan-test.com. ptr
+expect：a.luolan.com b.luolan.com
+
+#MX记录--VPC内域名
+dig @10.1.230.222 mx.luolan-test.com. mx
+expect：10 mxbiz1.qq.com 20 mxbiz2.qq.com
+
+#TXT记录--VPC内域名
+dig @10.1.230.222 txt.luolan-test.com. txt
+expect："txt test"
+
+======================dig txt 类型失败！与开发讨论是否属于bug====================
+=======================vpc总是与托管域解绑，未知原因=============================
+
+解析失败的域名：
+#A
+dnstest.luolan-test.com.
+a-record-test.luolan-test.com
+
+#CNAME
+cname-record.luolan-test.com.
+
+#PTR记录
+ptr2.luolan-test.com.
+
+以及所有的mx记录
+
+[DEBUG] 2018-09-29 12:00:43,255 - POSITION:org.apache.commons.httpclient.Wire.wire(Wire.java:69) - MESSAGE:<< >> "x-163-signaturemethod: HMAC-SHA256[\r][\n]"
+[DEBUG] 2018-09-29 12:00:43,255 - POSITION:org.apache.commons.httpclient.Wire.wire(Wire.java:69) - MESSAGE:<< >> "x-163-date: 2018-09-29T04:00:43Z[\r][\n]"
+[DEBUG] 2018-09-29 12:00:43,255 - POSITION:org.apache.commons.httpclient.Wire.wire(Wire.java:69) - MESSAGE:<< >> "Content-Type: application/json;charset=UTF-8[\r][\n]"
+[DEBUG] 2018-09-29 12:00:43,255 - POSITION:org.apache.commons.httpclient.Wire.wire(Wire.java:69) - MESSAGE:<< >> "User-Agent: Jakarta Commons-HttpClient/3.0.1[\r][\n]"
+[DEBUG] 2018-09-29 12:00:43,255 - POSITION:org.apache.commons.httpclient.Wire.wire(Wire.java:69) - MESSAGE:<< >> "Host: 10.185.8.140:9898[\r][\n]"
+[DEBUG] 2018-09-29 12:00:43,256 - POSITION:org.apache.commons.httpclient.Wire.wire(Wire.java:69) - MESSAGE:<< >> "[\r][\n]"
+[DEBUG] 2018-09-29 12:00:43,274 - POSITION:org.apache.commons.httpclient.Wire.wire(Wire.java:69) - MESSAGE:<< << "HTTP/1.1 404 Not Found[\r][\n]"
+[DEBUG] 2018-09-29 12:00:43,275 - POSITION:org.apache.commons.httpclient.Wire.wire(Wire.java:69) - MESSAGE:<< << "Server: Apache-Coyote/1.1[\r][\n]"
+[DEBUG] 2018-09-29 12:00:43,275 - POSITION:org.apache.commons.httpclient.Wire.wire(Wire.java:69) - MESSAGE:<< << "X-Application-Context: application:8888[\r][\n]"
+[DEBUG] 2018-09-29 12:00:43,275 - POSITION:org.apache.commons.httpclient.Wire.wire(Wire.java:69) - MESSAGE:<< << "X-NAPM-TraceId: 7b008345ad064de18de3508aebd5f68f[\r][\n]"
+[DEBUG] 2018-09-29 12:00:43,275 - POSITION:org.apache.commons.httpclient.Wire.wire(Wire.java:69) - MESSAGE:<< << "X-Request-Id: 1981f132-f84d-4a35-8a2c-976917311587[\r][\n]"
+[DEBUG] 2018-09-29 12:00:43,275 - POSITION:org.apache.commons.httpclient.Wire.wire(Wire.java:69) - MESSAGE:<< << "x-readtime: 5[\r][\n]"
+[DEBUG] 2018-09-29 12:00:43,275 - POSITION:org.apache.commons.httpclient.Wire.wire(Wire.java:69) - MESSAGE:<< << "Content-Type: application/json;charset=utf-8[\r][\n]"
+[DEBUG] 2018-09-29 12:00:43,275 - POSITION:org.apache.commons.httpclient.Wire.wire(Wire.java:69) - MESSAGE:<< << "Transfer-Encoding: chunked[\r][\n]"
+[DEBUG] 2018-09-29 12:00:43,275 - POSITION:org.apache.commons.httpclient.Wire.wire(Wire.java:69) - MESSAGE:<< << "Date: Sat, 29 Sep 2018 04:00:43 GMT[\r][\n]"
+[DEBUG] 2018-09-29 12:00:43,276 - POSITION:org.apache.commons.httpclient.Wire.wire(Wire.java:83) - MESSAGE:<< << "a"
+[DEBUG] 2018-09-29 12:00:43,276 - POSITION:org.apache.commons.httpclient.Wire.wire(Wire.java:83) - MESSAGE:<< << "7"
+[DEBUG] 2018-09-29 12:00:43,276 - POSITION:org.apache.commons.httpclient.Wire.wire(Wire.java:83) - MESSAGE:<< << "[\r]"
+[DEBUG] 2018-09-29 12:00:43,276 - POSITION:org.apache.commons.httpclient.Wire.wire(Wire.java:69) - MESSAGE:<< << "[\n]"
+[DEBUG] 2018-09-29 12:00:43,276 - POSITION:org.apache.commons.httpclient.Wire.wire(Wire.java:83) - MESSAGE:<< << "{"RequestId":"1981f132-f84d-4a35-8a2c-976917311587","Code":"NoSuchResourceRecordSet","Message":"No such resource record set with resource record id: qv1aAB1LY0Z8y2ew"}"
+
+
+	
+	
+	
+	
+      
